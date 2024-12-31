@@ -2,6 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.iml
+.idea
+*.hcl
+builds/
+.terraform
 
 # C extensions
 *.so
