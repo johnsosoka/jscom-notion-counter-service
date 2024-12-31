@@ -7,6 +7,7 @@ module "notion-counter-service" {
   runtime            = "python3.12"
   source_path        = "../lambda/src"
   attach_policy_json = true
+  timeout            = 10
 
   policy_json = jsonencode({
     Version   = "2012-10-17"
