@@ -15,6 +15,7 @@ def lambda_handler(event, context):
     # Extract headers
     notion_token = event['headers'].get('notion-token')
     counter_property = event['headers'].get('counter-property')
+    logger.info(f"Received event: {event}")
 
     body = None
     page_id = None
