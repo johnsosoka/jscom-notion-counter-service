@@ -15,10 +15,16 @@ def lambda_handler(event, context):
     # Extract headers
     notion_token = event['headers'].get('notion-token')
     counter_property = event['headers'].get('counter-property')
+    lent_date_property = event['headers'].get('lent-date-property', 'Lent On')
     logger.info(f"Received event: {event}")
 
-    body = None
-    page_id = None
+    # Check if the event is a clear date event
+    if is_date_clear_event(event, lent_date_property):
+        logger.info("Date was cleared, skipping processing.")
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"status": "success"})
+        }
 
     if not notion_token or not counter_property:
         error_message = "Missing required headers: notion-token and counter-property"
@@ -114,3 +120,25 @@ def update_notion_page(notion_token, page_id, counter_property, updated_counter)
     except Exception as e:
         logger.error(f"Error updating Notion page: {str(e)}")
         raise
+
+
+def is_date_clear_event(event, lent_date_property) -> bool:
+    """
+    Check if the event is a clear date event (item returned, start date null)
+
+    :param event:
+    :param lent_date_property:
+    :return:
+    """
+    body = json.loads(event['body'])
+    lent_on = body['data']['properties'][lent_date_property]
+    if not lent_on:
+        logger.warning(f"Event does not contain property: {lent_date_property}")
+        return True
+
+    if lent_on["date"] is None:
+        logger.info(f"Event property {lent_date_property} does not contain a date, date was cleared, skipping processing.")
+        return True
+
+    return False
+
